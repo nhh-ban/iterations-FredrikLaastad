@@ -9,6 +9,7 @@ library(lubridate)
 library(anytime)
 library(readr)
 library(yaml)
+library(glue)
 
 #### 1: Beginning of script
 
@@ -45,25 +46,36 @@ stations_metadata_df <-
 source("functions/data_tests.r")
 test_stations_metadata(stations_metadata_df)
 
+#### 4: Query test
+source("gql-queries/vol_qry.r")
+GQL(
+  vol_qry(
+    id=stations_metadata_df$id[1], 
+    from=to_iso8601(stations_metadata_df$latestData[1],-4),
+    to=to_iso8601(stations_metadata_df$latestData[1],0)
+  ),
+  .url = configs$vegvesen_url
+)
 
 ### 5: Final volume query: 
 
 source("gql-queries/vol_qry.r")
 
-stations_metadata_df %>% 
-  filter(latestData > Sys.Date() - days(7)) %>% 
-  sample_n(1) %$% 
-  vol_qry(
-    id = id,
-    from = to_iso8601(latestData, -4),
-    to = to_iso8601(latestData, 0)
-  ) %>% 
-  GQL(., .url = configs$vegvesen_url) %>%
-  transform_volumes() %>% 
-  ggplot(aes(x=from, y=volume)) + 
-  geom_line() + 
-  theme_classic()
-
-
-
-
+stations_metadata_df %>%
+  filter(latestData > Sys.Date() - days(7)) %>%
+  sample_n(1) %$% {
+    vol_qry(
+      id = id,
+      from = to_iso8601(.$latestData, -4),
+      to = to_iso8601(.$latestData, 0)
+    ) %>% 
+      GQL(., .url = configs$vegvesen_url) %>%
+      transform_volumes() %>%
+      ggplot(aes(x = from, y = volume)) +
+      geom_line() +
+      theme_classic() +
+      ggtitle("Name:", name)+
+      labs(x = "Date", y = "Traffic")+
+      geom_point(aes(color=volume))+
+      theme(minimal,legend.position = "none")
+  }

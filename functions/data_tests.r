@@ -5,6 +5,7 @@
 # All tests are packed in a function test_stations_metadata that apples
 # all the aforementioned tests
 
+#Checks the names of the columns, if they match expected values: id, name, latestData, lat & lon 
 test_stations_metadata_colnames <-
   function(df) {
     
@@ -17,6 +18,7 @@ test_stations_metadata_colnames <-
     }
   }
 
+#Checks the amount of rows in the dataframe, which should be between 5 and 10 thousand
 test_stations_metadata_nrows <-
   function(df) {
     
@@ -32,6 +34,7 @@ test_stations_metadata_nrows <-
     }
   }
 
+#Checks that the columns have the correct datatypes set
 test_stations_metadata_coltypes <-
   function(df) {
     expected_coltypes <-
@@ -45,6 +48,7 @@ test_stations_metadata_coltypes <-
     }
   }
   
+#Checks if df has missing values over treshold of 200
 test_stations_metadata_nmissing <-
   function(df) {
     max_miss_vals <- 200
@@ -56,6 +60,7 @@ test_stations_metadata_nmissing <-
     }
   }
 
+#checks if UTC format on timezone
 test_stations_metadata_latestdata_timezone <-
   function(df) {
     
@@ -66,7 +71,7 @@ test_stations_metadata_latestdata_timezone <-
     }
   }
 
-
+#Runs all tests
 test_stations_metadata <- 
   function(df){
     test_stations_metadata_colnames(df)
